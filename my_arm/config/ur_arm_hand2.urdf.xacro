@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="https://ros.org/wiki/xacro" name="ur_arm_hand">
+
+  <!-- ur5 -->
+  <xacro:include filename="$(find xacro2moveit)/script/ur_arm_ur5e.urdf" />
+  
+  <!-- gripper -->
+  <xacro:include filename="$(find robotiq_description)/urdf/robotiq_2f_85_macro.urdf.xacro" />
+
+  <xacro:robotiq_gripper name="RobotiqGripperHardwareInterface" prefix="" parent="tool0" use_fake_hardware="true" sim_ignition="false">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+  </xacro:robotiq_gripper>
+
+
+
+</robot>

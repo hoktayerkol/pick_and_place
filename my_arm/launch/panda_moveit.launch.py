@@ -29,7 +29,6 @@ def generate_launch_description():
         .robot_description_semantic(file_path=robot_description_semantic_file)
         .trajectory_execution(file_path=roboot_config_file)
         .planning_pipelines(pipelines=["ompl", "chomp", "pilz_industrial_motion_planner"])
-                            #default_planning_pipeline="ompl")
         .to_moveit_configs()
         # moveit_configs.package_path
         # moveit_configs.robot_description
@@ -76,11 +75,9 @@ def generate_launch_description():
     )
 
     # RViz
-    '''
     rviz_config_file = (
-        get_package_share_directory("moveit2_tutorials") + "/launch/mtc.rviz"
+        get_package_share_directory("my_arm") + "/config/moveit.rviz"
     )
-    '''
     rviz_node = Node(
         package="rviz2",
         executable="rviz2",

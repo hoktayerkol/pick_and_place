@@ -4,6 +4,7 @@
 #include <moveit/planning_scene_interface/planning_scene_interface.h>
 
 #include <geometry_msgs/msg/pose.hpp>
+#include <moveit_visual_tools/moveit_visual_tools.h>
 
 namespace robot_arm_node_ns
 {
@@ -19,15 +20,18 @@ namespace robot_arm_node_ns
             std::string hand_frame;
             //moveit::planning_interface::MoveGroupInterface move_group;
 
-            rclcpp::Node::SharedPtr node_;
+            
 
             // move grouo and planning group
             moveit::planning_interface::MoveGroupInterfacePtr move_group_arm_;
             moveit::planning_interface::MoveGroupInterfacePtr move_group_hand_;
             moveit::planning_interface::PlanningSceneInterfacePtr planning_scene_interface_;
-            moveit::planning_interface::MoveGroupInterface::Plan moving_plan_;
-
             
+            rclcpp::Node::SharedPtr node_;
+            
+            moveit::planning_interface::MoveGroupInterface::Plan moving_plan_;
+            moveit_visual_tools::MoveItVisualToolsPtr visualize_;
+
 
 
         public:
@@ -36,7 +40,7 @@ namespace robot_arm_node_ns
 
             rclcpp::node_interfaces::NodeBaseInterface::SharedPtr getNodeBaseInterface();
 
-            void move2target(geometry_msgs::msg::Pose target_pose);
+            void move2target(geometry_msgs::msg::PoseStamped target_pose, std::string mode);
 
             //std::shared_ptr<rclcpp::Logger> logger;
 
@@ -45,9 +49,9 @@ namespace robot_arm_node_ns
 
             void set_constraints();
             
+            void rviz_visualize(std::string text); //, moveit::planning_interface::MoveGroupInterface::Plan plan);
             
             
-
 
     };
 }

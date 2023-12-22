@@ -1,7 +1,7 @@
 #include <rclcpp/rclcpp.hpp>
-#include "pick_and_place/robot_arm_node.hpp"
+#include "pick_and_place_pilz/robot_arm_node.hpp"
 #include <geometry_msgs/msg/point.hpp>
-
+#include <moveit_visual_tools/moveit_visual_tools.h>
 
 namespace robot_arm_node_ns
 {
@@ -18,11 +18,20 @@ namespace robot_arm_node_ns
         move_group_hand_ = std::make_shared<moveit::planning_interface::MoveGroupInterface>(node_, hand_group_name);
         planning_scene_interface_ = std::make_shared<moveit::planning_interface::PlanningSceneInterface>();
 
-        move_group_arm_->setMaxAccelerationScalingFactor(0.5);
-        move_group_arm_->setMaxVelocityScalingFactor(0.5);
+        move_group_arm_->setPlanningPipelineId("pilz_industrial_motion_planner");
+        
 
-        move_group_hand_->setMaxAccelerationScalingFactor(0.02);
-        move_group_hand_->setMaxVelocityScalingFactor(0.02);
+        visualize_ = std::make_shared<moveit_visual_tools::MoveItVisualTools>(node_, 
+                    "panda_link0", rviz_visual_tools::RVIZ_MARKER_TOPIC, move_group_arm_->getRobotModel());
+        visualize_->deleteAllMarkers();
+        visualize_->loadRemoteControl();
+
+
+        //move_group_arm_->setMaxAccelerationScalingFactor(0.5);
+        //move_group_arm_->setMaxVelocityScalingFactor(0.5);
+
+        //move_group_hand_->setMaxAccelerationScalingFactor(0.02);
+        //move_group_hand_->setMaxVelocityScalingFactor(0.02);
         
         //logger = std::make_shared<rclcpp::Logger>("robot_arm");
 
@@ -34,22 +43,27 @@ namespace robot_arm_node_ns
         return node_->get_node_base_interface();
     }
 
+    // setNamedTarget
+    // in the srdf: read, extended. transport for arm and open and close for hand
     // move2target()
-    void robot_arm_node::move2target(geometry_msgs::msg::Pose target_pose)
+    void robot_arm_node::move2target(geometry_msgs::msg::PoseStamped target_pose, std::string mode)
     {
+        move_group_arm_->setPlannerId(mode);
 
-        move_group_arm_->setPoseTarget(target_pose, move_group_arm_->getEndEffectorLink());
+        move_group_arm_->setPoseTarget(target_pose, hand_frame);
+        // move_group_arm_->setPoseTarget(target_pose, move_group_arm_->getEndEffectorLink());
         
         if (move_group_arm_->plan(moving_plan_)==moveit::core::MoveItErrorCode::SUCCESS)
         {
             RCLCPP_INFO(rclcpp::get_logger("robot_arm"), "plan successfull!");
+            rviz_visualize("plan succesful!"); //, moving_plan_);
             move_group_arm_->execute(moving_plan_);
         } else {
             RCLCPP_INFO(rclcpp::get_logger("robot_arm"), "plan failed!");
             return;
         };
 
-        return;
+        //return;
     }
 
     // grasp and release aproach and retreat
@@ -58,8 +72,8 @@ namespace robot_arm_node_ns
     {
 
         // set hand target joint values
-        move_group_hand_->setJointValueTarget(std::vector<double>{0.00,0.00});
-
+        move_group_hand_->setJointValueTarget(std::vector<double>{0.05,0.05});
+        //move_group_hand_->setNamedTarget("close");
         // create a plan object to store generated plan
         moveit::planning_interface::MoveGroupInterface::Plan my_plan;
 
@@ -82,8 +96,8 @@ namespace robot_arm_node_ns
     {
 
         // set hand target joint values
-        move_group_hand_->setJointValueTarget(std::vector<double>{0.05,0.05});
-
+        //move_group_hand_->setJointValueTarget(std::vector<double>{0.05,0.05});
+        move_group_hand_->setNamedTarget("open");
         // create a plan object to store generated plan
         moveit::planning_interface::MoveGroupInterface::Plan my_plan;
 
@@ -118,5 +132,21 @@ namespace robot_arm_node_ns
         move_group_arm_->setPathConstraints(test_constraints);
     }
 
+    void robot_arm_node::rviz_visualize(std::string text) //, moveit::planning_interface::MoveGroupInterface::Plan plan)
+    {
+        auto pose = Eigen::Isometry3d::Identity();
+        pose.translation() = Eigen::Vector3d(0.0, 0.0, 1.0);
+
+        visualize_->publishText(pose, text, rviz_visual_tools::WHITE, rviz_visual_tools::XLARGE);
+        visualize_->trigger();
+
+        visualize_->prompt(text);
+        visualize_->trigger();
+
+        auto jmg = move_group_arm_->getRobotModel()->getJointModelGroup(arm_group_name);
+        visualize_->publishTrajectoryLine(moving_plan_.trajectory_, jmg);
+        visualize_->trigger();
+
+    }
     
 } // robot_arm_node_ns

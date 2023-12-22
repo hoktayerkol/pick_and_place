@@ -26,11 +26,13 @@ int main(int argc, char** argv)
     std::thread([&executor](){executor.spin();}).detach(); //join(); detach();
 
 
+
+
     geometry_msgs::msg::Pose target_pose1;
+    geometry_msgs::msg::Pose target_pose2;
     target_pose1.position.x = 0.32;
     target_pose1.position.y = -0.44;
     target_pose1.position.z = 0.32;
-
     
     tf2::Quaternion myq;
     myq.setRPY(3.14,0,2*M_PI);
@@ -41,7 +43,19 @@ int main(int argc, char** argv)
     target_pose1.orientation.y = myq.getY();
     target_pose1.orientation.z = myq.getZ();
 
-    rb->move2target(target_pose1);
+    target_pose2.orientation = target_pose1.orientation;
+    target_pose2.position.x = 0.32;
+    target_pose2.position.y = 0.44;
+    target_pose2.position.z = 0.42;
+
+//    rb->set_constraints();
+    while (1){
+        rb->move2target(target_pose1);
+        rb->grasp();
+        rb->move2target(target_pose2);
+        rb->release();
+    };
+
 
     rclcpp::shutdown();
     return 0;
