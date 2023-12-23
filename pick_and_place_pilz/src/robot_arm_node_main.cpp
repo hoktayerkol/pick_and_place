@@ -13,7 +13,7 @@ int main(int argc, char** argv)
     rclcpp::init(argc, argv);
 
     rclcpp::NodeOptions options;
-    options.automatically_declare_parameters_from_overrides(true);
+    // options.automatically_declare_parameters_from_overrides(true);
 
     // create nodes
     auto rb = std::make_shared<robot_arm_node_ns::robot_arm_node>(options);
@@ -22,7 +22,7 @@ int main(int argc, char** argv)
     rclcpp::executors::SingleThreadedExecutor executor;
     executor.add_node(rb->getNodeBaseInterface());
 
-    // creater thread
+    // create thread
     std::thread([&executor](){executor.spin();}).detach(); //join(); detach();
 
     auto const pre_grasp_pose = [] {
@@ -77,14 +77,14 @@ int main(int argc, char** argv)
       return msg;
     }();
 
-    // for pliz, mode = LIN, PTP or CIRC
+    // for pilz, mode = LIN, PTP or CIRC
     while (1){
         rb->move2target(pre_grasp_pose, "PTP");
         rb->move2target(grasp_pose, "PTP");
-        rb->grasp();
+        // rb->grasp();
         rb->move2target(goal_pose, "PTP");
         rb->move2target(center_pose, "PTP");
-        rb->release();
+        // rb->release();
     };
 
 

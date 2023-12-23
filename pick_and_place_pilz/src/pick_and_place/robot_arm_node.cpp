@@ -9,10 +9,29 @@ namespace robot_arm_node_ns
     robot_arm_node::robot_arm_node(const rclcpp::NodeOptions& options) : moving_plan_()
     {
         node_ = std::make_shared<rclcpp::Node>("robot_arm", options);
-        arm_group_name = "panda_arm";
-        hand_group_name = "hand";
-        hand_frame = "panda_hand";
-        //planning_group = arm_group_name;
+
+        // auto param_desc = rcl_interfaces::msg::ParameterDescriptor{};
+        // param_desc.description = "Robot's arm group";
+        // node_->declare_parameter("arm_group_name", "arm_group", param_desc);
+        // arm_group_name = node_->get_parameter("arm_group_name").as_string();
+
+        // param_desc.description = "Robot's hand group";
+        // node_->declare_parameter("hand_group_name", "hand_group", param_desc);
+        // hand_group_name = node_->get_parameter("hand_group_name").as_string();
+
+        // param_desc.description = "Robot's hand frame";
+        // node_->declare_parameter("hand_frame_name", "hand_frame", param_desc);
+        // hand_frame_name = node_->get_parameter("hand_frame_name").as_string();
+
+        // for panda
+        // arm_group_name = "panda_arm";
+        // hand_group_name = "hand";
+        // hand_frame_name = "panda_hand";
+
+        // for ur
+        arm_group_name = "arm_group";
+        hand_group_name = "hand_group";
+        hand_frame_name = "tool0";
 
         move_group_arm_ = std::make_shared<moveit::planning_interface::MoveGroupInterface>(node_, arm_group_name);
         move_group_hand_ = std::make_shared<moveit::planning_interface::MoveGroupInterface>(node_, hand_group_name);
@@ -50,7 +69,9 @@ namespace robot_arm_node_ns
     {
         move_group_arm_->setPlannerId(mode);
 
-        move_group_arm_->setPoseTarget(target_pose, hand_frame);
+        move_group_arm_->setPoseTarget(target_pose, hand_frame_name);
+        // move_group_arm_->setPoseTarget(target_pose);
+        
         // move_group_arm_->setPoseTarget(target_pose, move_group_arm_->getEndEffectorLink());
         
         if (move_group_arm_->plan(moving_plan_)==moveit::core::MoveItErrorCode::SUCCESS)
@@ -59,7 +80,7 @@ namespace robot_arm_node_ns
             rviz_visualize("plan succesful!"); //, moving_plan_);
             move_group_arm_->execute(moving_plan_);
         } else {
-            RCLCPP_INFO(rclcpp::get_logger("robot_arm"), "plan failed!");
+            RCLCPP_INFO(rclcpp::get_logger("robot_arm move2target"), "plan failed!");
             return;
         };
 

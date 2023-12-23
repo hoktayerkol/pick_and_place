@@ -1,0 +1,7 @@
+ppp_node:
+  ros__parameters:
+    arm_group_name: "panda_arm"
+    hand_group_name: "hand"
+    hand_frame_name: "panda_hand"
+    name_space: ''
+    use_sim_time: true
