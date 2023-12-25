@@ -81,10 +81,10 @@ int main(int argc, char** argv)
     while (1){
         rb->move2target(pre_grasp_pose, "PTP");
         rb->move2target(grasp_pose, "PTP");
-        // rb->grasp();
+        rb->grasp();
         rb->move2target(goal_pose, "PTP");
         rb->move2target(center_pose, "PTP");
-        // rb->release();
+        rb->release();
     };
 
 

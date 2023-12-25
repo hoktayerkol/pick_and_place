@@ -38,7 +38,7 @@ def generate_launch_description():
 
     # RViz
     rviz_config_file = (
-        get_package_share_directory("ur_arm_hand_moveit_config") + "/config/moveit.rviz"
+        get_package_share_directory("my_arm") + "/config/my_arm.rviz"
     )
     rviz_node = Node(
         package="rviz2",
@@ -60,7 +60,7 @@ def generate_launch_description():
         executable="static_transform_publisher",
         name="static_transform_publisher",
         output="log",
-        arguments=["--frame-id", "world", "--child-frame-id", "base_link"],
+        arguments=["0","0","0","0","0","0", "--frame-id", "world", "--child-frame-id", "base_link", "100"],
     )
 
     # Publish TF
@@ -108,8 +108,8 @@ def generate_launch_description():
     return LaunchDescription(
         [
             rviz_node,
-            # static_tf,
-            robot_state_publisher,
+            static_tf,
+            # robot_state_publisher,
             run_move_group_node,
             #ros2_control_node,
         ]

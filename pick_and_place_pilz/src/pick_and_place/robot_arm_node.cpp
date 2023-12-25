@@ -32,6 +32,7 @@ namespace robot_arm_node_ns
         arm_group_name = "arm_group";
         hand_group_name = "hand_group";
         hand_frame_name = "tool0";
+        robot_base_link = "base_link";
 
         move_group_arm_ = std::make_shared<moveit::planning_interface::MoveGroupInterface>(node_, arm_group_name);
         move_group_hand_ = std::make_shared<moveit::planning_interface::MoveGroupInterface>(node_, hand_group_name);
@@ -41,7 +42,7 @@ namespace robot_arm_node_ns
         
 
         visualize_ = std::make_shared<moveit_visual_tools::MoveItVisualTools>(node_, 
-                    "panda_link0", rviz_visual_tools::RVIZ_MARKER_TOPIC, move_group_arm_->getRobotModel());
+                    robot_base_link, rviz_visual_tools::RVIZ_MARKER_TOPIC, move_group_arm_->getRobotModel());
         visualize_->deleteAllMarkers();
         visualize_->loadRemoteControl();
 
@@ -80,7 +81,7 @@ namespace robot_arm_node_ns
             rviz_visualize("plan succesful!"); //, moving_plan_);
             move_group_arm_->execute(moving_plan_);
         } else {
-            RCLCPP_INFO(rclcpp::get_logger("robot_arm move2target"), "plan failed!");
+            RCLCPP_INFO(rclcpp::get_logger("robot_arm move2target"), "move2target plan failed!");
             return;
         };
 
@@ -93,8 +94,8 @@ namespace robot_arm_node_ns
     {
 
         // set hand target joint values
-        move_group_hand_->setJointValueTarget(std::vector<double>{0.05,0.05});
-        //move_group_hand_->setNamedTarget("close");
+        // move_group_hand_->setJointValueTarget(std::vector<double>{0.00,0.00});
+        move_group_hand_->setNamedTarget("close");
         // create a plan object to store generated plan
         moveit::planning_interface::MoveGroupInterface::Plan my_plan;
 
@@ -103,7 +104,7 @@ namespace robot_arm_node_ns
             RCLCPP_INFO(rclcpp::get_logger("robot_hand"), "plan successfull!");
             move_group_hand_->execute(moving_plan_);
         } else {
-            RCLCPP_INFO(rclcpp::get_logger("robot_hand"), "plan failed!");
+            RCLCPP_INFO(rclcpp::get_logger("robot_hand"), "hand close plan failed!");
             return;
         };
 
@@ -127,7 +128,7 @@ namespace robot_arm_node_ns
             RCLCPP_INFO(rclcpp::get_logger("robot_hand"), "plan successfull!");
             move_group_hand_->execute(moving_plan_);
         } else {
-            RCLCPP_INFO(rclcpp::get_logger("robot_hand"), "plan failed!");
+            RCLCPP_INFO(rclcpp::get_logger("robot_hand"), "hand open plan failed!");
             return;
         };
 
@@ -156,7 +157,7 @@ namespace robot_arm_node_ns
     void robot_arm_node::rviz_visualize(std::string text) //, moveit::planning_interface::MoveGroupInterface::Plan plan)
     {
         auto pose = Eigen::Isometry3d::Identity();
-        pose.translation() = Eigen::Vector3d(0.0, 0.0, 1.0);
+        pose.translation() = Eigen::Vector3d(0.0, 0.0, 0.0);
 
         visualize_->publishText(pose, text, rviz_visual_tools::WHITE, rviz_visual_tools::XLARGE);
         visualize_->trigger();

@@ -18,6 +18,7 @@ namespace robot_arm_node_ns
             std::string arm_group_name;
             std::string hand_group_name;
             std::string hand_frame_name;
+            std::string robot_base_link;
             //moveit::planning_interface::MoveGroupInterface move_group;
 
             
