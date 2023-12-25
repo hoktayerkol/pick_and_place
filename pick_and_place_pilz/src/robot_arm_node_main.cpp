@@ -77,13 +77,15 @@ int main(int argc, char** argv)
       return msg;
     }();
 
+    rb->go_to_home();
+    
     // for pilz, mode = LIN, PTP or CIRC
     while (1){
-        rb->move2target(pre_grasp_pose, "PTP");
-        rb->move2target(grasp_pose, "PTP");
+        rb->move2target(pre_grasp_pose, "LIN");
+        rb->move2target(grasp_pose, "LIN");
         rb->grasp();
-        rb->move2target(goal_pose, "PTP");
-        rb->move2target(center_pose, "PTP");
+        rb->move2target(goal_pose, "LIN");
+        rb->move2target(center_pose, "LIN");
         rb->release();
     };
 

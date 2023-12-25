@@ -47,7 +47,8 @@ namespace robot_arm_node_ns
 
             void grasp();
             void release();
-
+            void go_to_home();
+            
             void set_constraints();
             
             void rviz_visualize(std::string text); //, moveit::planning_interface::MoveGroupInterface::Plan plan);

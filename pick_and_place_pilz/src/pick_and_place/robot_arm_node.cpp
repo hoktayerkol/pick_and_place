@@ -38,7 +38,6 @@ namespace robot_arm_node_ns
         move_group_hand_ = std::make_shared<moveit::planning_interface::MoveGroupInterface>(node_, hand_group_name);
         planning_scene_interface_ = std::make_shared<moveit::planning_interface::PlanningSceneInterface>();
 
-        move_group_arm_->setPlanningPipelineId("pilz_industrial_motion_planner");
         
 
         visualize_ = std::make_shared<moveit_visual_tools::MoveItVisualTools>(node_, 
@@ -81,7 +80,7 @@ namespace robot_arm_node_ns
             rviz_visualize("plan succesful!"); //, moving_plan_);
             move_group_arm_->execute(moving_plan_);
         } else {
-            RCLCPP_INFO(rclcpp::get_logger("robot_arm move2target"), "move2target plan failed!");
+            RCLCPP_INFO(rclcpp::get_logger("robot_arm"), "move2target plan failed!");
             return;
         };
 
@@ -101,10 +100,10 @@ namespace robot_arm_node_ns
 
         if (move_group_hand_->plan(moving_plan_)==moveit::core::MoveItErrorCode::SUCCESS)
         {
-            RCLCPP_INFO(rclcpp::get_logger("robot_hand"), "plan successfull!");
+            RCLCPP_INFO(rclcpp::get_logger("robot_arm"), "plan successfull!");
             move_group_hand_->execute(moving_plan_);
         } else {
-            RCLCPP_INFO(rclcpp::get_logger("robot_hand"), "hand close plan failed!");
+            RCLCPP_INFO(rclcpp::get_logger("robot_arm"), "hand close plan failed!");
             return;
         };
 
@@ -125,10 +124,10 @@ namespace robot_arm_node_ns
 
         if (move_group_hand_->plan(moving_plan_)==moveit::core::MoveItErrorCode::SUCCESS)
         {
-            RCLCPP_INFO(rclcpp::get_logger("robot_hand"), "plan successfull!");
+            RCLCPP_INFO(rclcpp::get_logger("robot_arm"), "plan successfull!");
             move_group_hand_->execute(moving_plan_);
         } else {
-            RCLCPP_INFO(rclcpp::get_logger("robot_hand"), "hand open plan failed!");
+            RCLCPP_INFO(rclcpp::get_logger("robot_arm"), "hand open plan failed!");
             return;
         };
 
@@ -171,4 +170,29 @@ namespace robot_arm_node_ns
 
     }
     
+    void robot_arm_node::go_to_home()
+    {
+
+        // set hand target joint values
+        //move_group_hand_->setJointValueTarget(std::vector<double>{0.05,0.05});
+        move_group_arm_->setNamedTarget("home");
+        // create a plan object to store generated plan
+        moveit::planning_interface::MoveGroupInterface::Plan my_plan;
+
+        if (move_group_arm_->plan(moving_plan_)==moveit::core::MoveItErrorCode::SUCCESS)
+        {
+            RCLCPP_INFO(rclcpp::get_logger("robot_arm"), "plan successfull!");
+            move_group_arm_->execute(moving_plan_);
+        } else {
+            RCLCPP_INFO(rclcpp::get_logger("robot_arm"), "got to home plan failed!");
+            return;
+        };
+
+        // execute the plan
+        move_group_hand_->execute(my_plan);
+
+        move_group_arm_->setPlanningPipelineId("pilz_industrial_motion_planner");
+        
+        return;
+    }
 } // robot_arm_node_ns
